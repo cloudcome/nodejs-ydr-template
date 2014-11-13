@@ -1,4 +1,4 @@
-# ydr-template
+# ydr-template [![NPM version](https://img.shields.io/npm/v/ydr-template.svg?style=flat)](https://npmjs.org/package/ydr-template)
 
 精炼的模板引擎，主要适配了express。
 

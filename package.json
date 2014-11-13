@@ -1,6 +1,6 @@
 {
   "name": "ydr-template",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": false,
   "description": "模板引擎",
   "scripts": {},
