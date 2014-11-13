@@ -1,0 +1,32 @@
+{
+  "name": "ydr-template",
+  "version": "1.0.0",
+  "private": false,
+  "description": "模板引擎",
+  "scripts": {},
+  "preferGlobal": false,
+  "bin": {},
+  "main": "index.js",
+  "keywords": [
+    "cloudcome",
+    "template",
+    "express",
+    "ydr"
+  ],
+  "author": {
+    "name": "cloudcome",
+    "email": "cloudcome@163.com",
+    "url": "http://ydr.me"
+  },
+  "homepage": "https://github.com/cloudcome/nodejs-ydr-template",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cloudcome/nodejs-ydr-template"
+  },
+  "bugs": {
+    "url": "https://github.com/cloudcome/nodejs-ydr-template/issues"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "licenses": "MIT"
+}
