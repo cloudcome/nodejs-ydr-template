@@ -170,8 +170,6 @@ Template.prototype = {
                 if (!$0 || $0 === '{') {
                     if (inIgnore) {
                         output.push(_var + '+=' + the._lineWrap(openTag) + ';');
-                    } else {
-                        throw new Error('find one more open tag ' + openTag);
                     }
                 }
                 // 忽略开始
