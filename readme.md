@@ -74,7 +74,7 @@ Template.addFilter('add', function (value, num) {
 var ydrTemplate = require('ydr-template');
 
 ydrTemplate.getFilter('upcase');
-``
+```
 
 ## 过滤方法出口
 ```
@@ -83,10 +83,21 @@ var ydrTemplate = require('ydr-template');
 ydrTemplate.filters;
 ```
 
+## 模板引擎
+```
+var ydrTemplate = require('ydr-template');
+var tpl = new ydrTemplate('{{user}}');
+
+tpl.render({
+    user: 'cloudcome'
+});
+// => "cloudcome"
+```
+
 
 # 4、版本
 
-## 1.0.2
+## 1.0.3
 - 添加测试用例
 - 修复部分 BUG
 
