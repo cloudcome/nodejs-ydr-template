@@ -1,8 +1,8 @@
 {
   "name": "ydr-template",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "private": false,
-  "description": "精炼的模板引擎",
+  "description": "ydr-template for ydr.me",
   "scripts": {
     "test": "node ./node_modules/mocha/bin/mocha -R spec -t 10000 ./test/*.test.js",
     "cover": "node ./node_modules/istanbul/lib/cli.js cover ./node_modules/mocha/bin/mocha -- -R spec ./test/*.test.js"
@@ -34,7 +34,9 @@
   "bugs": {
     "url": "https://github.com/cloudcome/nodejs-ydr-template/issues"
   },
-  "dependencies": {},
+  "dependencies": {
+    "ydr-util": "^1.10.9"
+  },
   "devDependencies": {
     "istanbul": "^0.3.2",
     "mocha": "^2.0.1",

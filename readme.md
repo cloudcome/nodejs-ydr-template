@@ -5,6 +5,10 @@
 # 1、使用
 ```
 var ydrTemplate = require('ydr-template');
+ydrTemplate.setOptions({
+	cache: true,
+	compress: true
+});
 app.engine('html', ydrTemplate.__express);
 app.set('view engine', 'html');
 ```
