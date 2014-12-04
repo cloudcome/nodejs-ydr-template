@@ -6,8 +6,10 @@
 ```
 var ydrTemplate = require('ydr-template');
 ydrTemplate.setOptions({
-	cache: true,
-	compress: true
+    // 是否保留缓存
+    cache: true,
+    // 是否压缩
+    compress: true
 });
 app.engine('html', ydrTemplate.__express);
 app.set('view engine', 'html');
