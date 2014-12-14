@@ -175,8 +175,7 @@ var Template = klass.create({
         constructor: function (tmplate, options) {
             this._options = dato.extend(true, {}, defaults, options);
             this._init(tmplate);
-        }
-        ,
+        },
 
 
         /**
@@ -187,7 +186,6 @@ var Template = klass.create({
          */
         _init: function (template) {
             var the = this;
-            var options = the._options;
             var _var = 'alienTemplateOutput_' + Date.now();
             var fnStr = 'var ' + _var + '="";';
             var output = [];
@@ -203,11 +201,12 @@ var Template = klass.create({
             };
             the._useFilters = {};
 
-            template.split(openTag).forEach(function (value) {
+            template.split(openTag).forEach(function (value, times) {
                 var array = value.split(closeTag);
                 var $0 = array[0];
                 var $1 = array[1];
                 var parseVar;
+                var isEndIgnore;
 
                 parseTimes++;
 
@@ -224,7 +223,8 @@ var Template = klass.create({
                         output.push(_var + '+=' + the._lineWrap($0.slice(0, -1) + openTag) + ';');
                         inIgnore = true;
                         parseTimes--;
-                    } else {
+                    }
+                    else {
                         if ((parseTimes % 2) === 0) {
                             throw new Error('find unclose tag ' + openTag);
                         }
@@ -238,12 +238,33 @@ var Template = klass.create({
                 else if (array.length === 2) {
                     $0 = $0.trim();
                     inExp = false;
+                    isEndIgnore = $1.slice(-1) === '\\';
 
                     // 忽略结束
                     if (inIgnore) {
-                        output.push(_var + '+=' + the._lineWrap($0 + closeTag + $1) + ';');
+                        output.push(
+                            _var +
+                            '+=' + the._lineWrap((times > 1 ? openTag : '') +
+                                $0 + closeTag +
+                                (isEndIgnore ? $1.slice(0, -1) : $1)
+                            ) +
+                            ';');
                         inIgnore = false;
+
+                        // 下一次忽略
+                        if (isEndIgnore) {
+                            inIgnore = true;
+                            parseTimes--;
+                        }
+
                         return;
+                    }
+
+                    // 下一次忽略
+                    if (isEndIgnore) {
+                        inIgnore = true;
+                        parseTimes--;
+                        $1 = $1.slice(0, -1);
                     }
 
                     $1 = the._lineWrap($1);
@@ -295,8 +316,7 @@ var Template = klass.create({
             the._fn = fnStr;
 
             return the;
-        }
-        ,
+        },
 
 
         /**
@@ -344,8 +364,7 @@ var Template = klass.create({
             }
 
             return String(ret);
-        }
-        ,
+        } ,
 
 
         /**
@@ -378,8 +397,7 @@ var Template = klass.create({
             }
 
             instanceFilters[name] = callback;
-        }
-        ,
+        },
 
         /**
          * 获取过滤函数
@@ -397,8 +415,7 @@ var Template = klass.create({
             return typeis(name) === 'string' ?
                 this._template.filters[name] :
                 this._template.filters;
-        }
-        ,
+        },
 
 
         /**
@@ -445,8 +462,7 @@ var Template = klass.create({
             });
 
             return ret;
-        }
-        ,
+        },
 
 
         /**
@@ -463,8 +479,7 @@ var Template = klass.create({
             }
 
             return matches[1] + '(' + matches[3] + '){';
-        }
-        ,
+        } ,
 
 
         /**
@@ -490,8 +505,7 @@ var Template = klass.create({
 
             return 'for(var ' + parse.key + ' in ' + parse.list + '){var ' +
                 parse.val + '=' + parse.list + '[' + parse.key + '];';
-        }
-        ,
+        },
 
 
         /**
@@ -511,8 +525,7 @@ var Template = klass.create({
 
             return '"' + str + '"';
         }
-    })
-    ;
+    });
 
 
 /**
