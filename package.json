@@ -1,6 +1,6 @@
 {
   "name": "ydr-template",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "private": false,
   "description": "ydr-template for ydr.me",
   "scripts": {
