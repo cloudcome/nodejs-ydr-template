@@ -72,6 +72,14 @@ var Template = klass.create({
          */
         filters: filters,
 
+        /**
+         * 设置默认配置
+         * @param options
+         */
+        setDefaults: function (options) {
+            dato.extend(defaults, options);
+        },
+
 
         /**
          * 添加过滤方法
@@ -112,56 +120,6 @@ var Template = klass.create({
             if (typeis(name) === 'string') {
                 return filters[name];
             }
-        },
-
-
-        /**
-         * 设置默认配置
-         * @param options
-         */
-        setOptions: function (options) {
-            dato.extend(defaults, options);
-        },
-
-
-        /**
-         * 适配 express
-         * @param file {String} 模板的绝对路径
-         * @param data {Object} 模板的数据
-         * @param [data.cache=false] {Boolean} 是否缓存模板
-         * @param [data.locals=null] {Object} 动态助手
-         * @param [data.settings=null] {Object} app 配置
-         * @param fn {Function} 回调
-         */
-        __express: function (file, data, callback) {
-            var template;
-            var tpl;
-
-            if (typeof data === 'function') {
-                callback = data;
-                data = {};
-            }
-
-            callback = callback || noop;
-
-            if (defaults.cache && templateMap[file]) {
-                tpl = templateMap[file];
-            } else {
-                try {
-                    template = fs.readFileSync(file, 'utf8');
-                    template = _preCompile(file, template);
-                } catch (err) {
-                    return callback(err);
-                }
-
-                tpl = new Template(template);
-
-                if (defaults.cache) {
-                    templateMap[file] = tpl;
-                }
-            }
-
-            callback(null, tpl.render(data));
         }
     },
 
@@ -186,6 +144,7 @@ var Template = klass.create({
      */
     _init: function (template) {
         var the = this;
+        //var options = the._options;
         var _var = 'alienTemplateOutput_' + Date.now();
         var fnStr = 'var ' + _var + '="";';
         var output = [];
@@ -270,11 +229,11 @@ var Template = klass.create({
                 $1 = the._lineWrap($1);
 
                 // if abc
-                if ($0.indexOf('if ') === 0) {
+                if (the._hasPrefix($0, 'if')) {
                     output.push(the._parseIfAndElseIf($0) + _var + '+=' + $1 + ';');
                 }
                 // else if abc
-                else if ($0.indexOf('else if ') === 0) {
+                else if (regElseIf.test($0)) {
                     output.push('}' + the._parseIfAndElseIf($0) + _var + '+=' + $1 + ';');
                 }
                 // else
@@ -287,7 +246,7 @@ var Template = klass.create({
                 }
                 // list list as key,val
                 // list list as val
-                else if ($0.indexOf('list ') === 0) {
+                else if (the._hasPrefix($0, 'list')) {
                     output.push(the._parseList($0) + _var + '+=' + $1 + ';');
                 }
                 // /list
@@ -295,11 +254,27 @@ var Template = klass.create({
                     output.push('}' + _var + '+=' + $1 + ';');
                 }
                 // var
-                else {
+                else if (the._hasPrefix($0, 'var')) {
                     parseVar = the._parseVar($0);
 
                     if (parseVar) {
-                        output.push(_var + '+=' + the._parseVar($0) + '+' + $1 + ';');
+                        output.push(parseVar);
+                    }
+                }
+                // #
+                else if (regHash.test($0)) {
+                    parseVar = the._parseVar($0.replace(regHash, ''));
+
+                    if (parseVar) {
+                        output.push(parseVar);
+                    }
+                }
+                // exp
+                else {
+                    parseVar = the._parseExp($0);
+
+                    if (parseVar) {
+                        output.push(_var + '+=' + the._parseExp($0) + '+' + $1 + ';');
                     }
                 }
 
@@ -316,6 +291,18 @@ var Template = klass.create({
         the._fn = fnStr;
 
         return the;
+    },
+
+
+    /**
+     * 判断是否包含该前缀
+     * @param str
+     * @param pre
+     * @returns {boolean}
+     * @private
+     */
+    _hasPrefix: function (str, pre) {
+        return str.indexOf(pre + ' ') === 0;
     },
 
 
@@ -419,12 +406,24 @@ var Template = klass.create({
 
 
     /**
-     * 解析变量
+     * 解析变量赋值
      * @param str
      * @returns {string}
      * @private
      */
     _parseVar: function (str) {
+        return this._parseExp(str, 'var') + ';';
+    },
+
+
+    /**
+     * 解析表达式
+     * @param str
+     * @param [pre]
+     * @returns {string}
+     * @private
+     */
+    _parseExp: function (str, pre) {
         var the = this;
         var matches = str.trim().match(regVar);
         var filters;
@@ -462,8 +461,11 @@ var Template = klass.create({
 
         var isEscape = matches[1] !== '=';
 
-        return (isEscape ? 'this.escape(' : '(') +
-            exp + ')';
+        if (pre) {
+            return exp;
+        }
+
+        return (isEscape ? 'this.escape(' : '(') + exp + ')';
     },
 
 
@@ -531,27 +533,48 @@ var Template = klass.create({
 
 
 /**
- * 模板引擎<br>
- * <b>注意点：不能在模板表达式里出现开始或结束符，否则会解析错误</b><br>
- * 1. 编码输出变量<br>
- * {{data.name}}<br>
- * 2. 取消编码输出变量<br>
- * {{=data.name}}<br>
- * 3. 判断语句（<code>if</code>）<br>
- * {{if data.name1}}<br>
- * {{else if data.name2}}<br>
- * {{else}}<br>
- * {{/if}}<br>
- * 4. 循环语句（<code>list</code>）<br>
- * {{list list as key,val}}<br>
- * {{/list}}<br>
- * {{list list as val}}<br>
- * {{/list}}<br>
- * 5. 过滤（<code>|</code>）<br>
- * 第1个参数实际为过滤函数的第2个函数，这个需要过滤函数扩展的时候明白，详细参考下文的addFilter<br>
- * {{data.name|filter1|filter2:"def"|filter3:"def","ghi"}}<br>
- * 6. 反斜杠转义，原样输出<br>
- * \{{}} => {{}}<br>
+ * 适配 express
+ * @param file {String} 模板的绝对路径
+ * @param data {Object} 模板的数据
+ * @param [data.cache=false] {Boolean} 是否缓存模板
+ * @param [data.locals=null] {Object} 动态助手
+ * @param [data.settings=null] {Object} app 配置
+ * @param callback {Function} 回调
+ */
+Template.__express = function (file, data, callback) {
+    var template;
+    var tpl;
+    var args = arguments;
+
+    if (typeis.function(args[1])) {
+        callback = args[1];
+        data = {};
+    }
+
+    callback = callback || noop;
+
+    if (defaults.cache && templateMap[file]) {
+        tpl = templateMap[file];
+    } else {
+        try {
+            template = fs.readFileSync(file, 'utf8');
+            template = _preCompile(file, template);
+        } catch (err) {
+            return callback(err);
+        }
+
+        tpl = new Template(template);
+
+        if (defaults.cache) {
+            templateMap[file] = tpl;
+        }
+    }
+
+    callback(null, tpl.render(data));
+}
+
+/**
+ * 模板引擎
  *
  * @param {Object} [options] 配置
  * @param {Boolean} [options.compress=true] 是否压缩，默认为 true
