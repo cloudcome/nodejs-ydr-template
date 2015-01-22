@@ -5,7 +5,7 @@
 # 1、使用
 ```
 var ydrTemplate = require('ydr-template');
-ydrTemplate.setOptions({
+ydrTemplate.setDefaults({
     // 是否保留缓存
     cache: true,
     // 是否压缩
