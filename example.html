@@ -1,0 +1,28 @@
+{{var varible = 123;}}{{varible}}
+{{string}}
+
+{{#string+=" hehe"}}
+
+{{string}}
+
+{{if boolean}}
+true
+{{else}}
+false
+{{/if}}
+
+{{if number===1}}
+1
+{{else if number === 2}}
+2
+{{else}}
+3
+{{/if}}
+
+{{list list as item}}
+    {{item.key}} => {{item.val}}
+{{/list}}
+
+{{list list as index,item}}
+    {{index}}: {{item.key}} => {{item.val}}
+{{/list}}
