@@ -23,6 +23,7 @@ var REG_IF = /^((else\s+)?if)\s+(.*)$/;
 var REH_LIST = /^list\s+([^,]*)\s+as\s+([^,]*)(\s*,\s*([^,]*))?$/;
 var REG_ELSE_IF = /^else\s+if\s/;
 var REG_HASH = /^#/;
+var REG_INCLUDE = /{{\s*?include (.*?)\s*?}}/g;
 var regLines = [{
     'n': /\n/g,
     'r': /\r/g,
@@ -680,7 +681,7 @@ function _cleanHTML(code) {
 function _preCompile(file, template) {
     var relativeDir = path.dirname(file);
 
-    return template.replace(regInclude, function ($0, $1) {
+    return template.replace(REG_INCLUDE, function ($0, $1) {
         var includeName = $1.trim();
         var includeFile = path.join(relativeDir, includeName);
 
