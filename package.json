@@ -35,7 +35,7 @@
     "url": "https://github.com/cloudcome/nodejs-ydr-template/issues"
   },
   "dependencies": {
-    "ydr-util": "^2.0.0"
+    "ydr-util": "^2.0.1"
   },
   "devDependencies": {
     "istanbul": "^0.3.2",
